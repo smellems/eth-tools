@@ -1,2 +1,5 @@
 baseurl: "/eth-tools/"
 url: "http://smellems.github.io"
+
+# Build settings
+markdown: kramdown

@@ -23,63 +23,76 @@
     <div id="addNewContract" class="row"></div>
 
     <div id="watchedContracts" class="row"></div>
+    
+ </div>
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+ <div class="container">
+  <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
+    <p class="col-md-4 mb-0 text-muted">&copy; 2023 smellems</p>
 
-    <script>
-      async function trackTokenMaxTotalSuply(contract, name, supply) {
-        $("#watchedContracts").append("<div id=\"" + name.toLowerCase().trim() + "\"><h3>" + name + "</h3>...</div>");
-        
-        setInterval(function() {
-            $.ajax({
-              dataType: "json",
-              url: "https://api.etherscan.io/api?module=stats&action=tokensupply&contractaddress=" + contract + "&apikey=" + $("#apiKey").val(),
-              success: function(result) {
+    <ul class="nav col-md-4 justify-content-end">
+      <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">Ethereum</a></li>
+      <li class="nav-item"><a href="https://github.com/smellems/gas-platform-now" class="nav-link px-2 text-muted">View on Github</a></li>
+    </ul>
+  </footer>
+</div>
 
-                const maxTotalSupply = result.result;
-                console.log("maxTotalSupply:", name.toLowerCase().trim(), maxTotalSupply);
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-                $("#" + name.toLowerCase().trim()).html(
-                  "<h3>" + name + "</h3>" +
-                  "<p>" + maxTotalSupply + " / " + supply + "</p>");
+<script>
+  async function trackTokenMaxTotalSuply(contract, name, supply) {
+    $("#watchedContracts").append("<div id=\"" + name.toLowerCase().trim() + "\"><h3>" + name + "</h3>...</div>");
+    
+    setInterval(function() {
+        $.ajax({
+          dataType: "json",
+          url: "https://api.etherscan.io/api?module=stats&action=tokensupply&contractaddress=" + contract + "&apikey=" + $("#apiKey").val(),
+          success: function(result) {
 
-              }
-            });
-          }, 10000);
-      }
+            const maxTotalSupply = result.result;
+            console.log("maxTotalSupply:", name.toLowerCase().trim(), maxTotalSupply);
 
-      $(document).ready(function() {
-        $("#startButton").click(function() {  
-          $("#startForm").hide();
+            $("#" + name.toLowerCase().trim()).html(
+              "<h3>" + name + "</h3>" +
+              "<p>" + maxTotalSupply + " / " + supply + "</p>");
 
-          $("#addNewContract").html("<div id=\"newContract\" class=\"col\">" +
-              "<details class=\"p-5 mb-4 bg-light rounded-3\">" +
-                "<summary><strong>Add New Contract</strong></summary>" +
-                "<label for=\"caddrEth\" class=\"form-label\">Ethereum Contract</label>" +
-                "<input type=\"text\" class=\"form-control\" id=\"caddrEth\" value=\"\" required>" +
-                "<label for=\"cnameEth\" class=\"form-label\">NFT Name</label>" +
-                "<input type=\"text\" class=\"form-control\" id=\"cnameEth\" value=\"\" required>" +
-                "<label for=\"maxSupply\" class=\"form-label\">Max Supply</label>" +
-                "<input type=\"text\" class=\"form-control\" id=\"maxSupply\" value=\"\" required>" +
-                "<hr/>" +
-                "<button id=\"startWatchingContract\" class=\"btn btn-primary btn-lg\" type=\"button\">Start</button>" +
-              "</<details>" +
-            "</div>");
-          
-            $("#startWatchingContract").click(function() {
-              console.log("call trackTokenMaxTotalSuply:", $("#caddrEth").val());
+          }
+        });
+      }, 10000);
+  }
 
-              trackTokenMaxTotalSuply($("#caddrEth").val(), $("#cnameEth").val(), $("#maxSupply").val());
-              $("#caddrEth").val("");
-              $("#cnameEth").val("");
-              $("#maxSupply").val("");
-            });
+  $(document).ready(function() {
+    $("#startButton").click(function() {  
+      $("#startForm").hide();
 
+      $("#addNewContract").html("<div id=\"newContract\" class=\"col\">" +
+          "<details class=\"p-5 mb-4 bg-light rounded-3\">" +
+            "<summary><strong>Add New Contract</strong></summary>" +
+            "<label for=\"caddrEth\" class=\"form-label\">Ethereum Contract</label>" +
+            "<input type=\"text\" class=\"form-control\" id=\"caddrEth\" value=\"\" required>" +
+            "<label for=\"cnameEth\" class=\"form-label\">NFT Name</label>" +
+            "<input type=\"text\" class=\"form-control\" id=\"cnameEth\" value=\"\" required>" +
+            "<label for=\"maxSupply\" class=\"form-label\">Max Supply</label>" +
+            "<input type=\"text\" class=\"form-control\" id=\"maxSupply\" value=\"\" required>" +
+            "<hr/>" +
+            "<button id=\"startWatchingContract\" class=\"btn btn-primary btn-lg\" type=\"button\">Start</button>" +
+          "</<details>" +
+        "</div>");
+      
+        $("#startWatchingContract").click(function() {
+          console.log("call trackTokenMaxTotalSuply:", $("#caddrEth").val());
+
+          trackTokenMaxTotalSuply($("#caddrEth").val(), $("#cnameEth").val(), $("#maxSupply").val());
+          $("#caddrEth").val("");
+          $("#cnameEth").val("");
+          $("#maxSupply").val("");
         });
 
-      });
-    </script>
- </div>
+    });
+
+  });
+</script>
+
 </body>
 </html>

@@ -1,0 +1,71 @@
+---
+layout: default
+---
+
+<div class="container">
+  <h1>Find a cool wallet</h1>
+
+  <div class="form-group row">
+    <label for="str1" class="col-sm-2 col-form-label">String 1</label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" id="str1" value="" required>
+    </div>
+  </div>
+
+  <div class="form-group row">
+    <label for="str2" class="col-sm-2 col-form-label">String 2</label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" id="str2" value="" required>
+    </div>
+  </div>
+
+  <hr/>
+  <button id="startButton" class="btn btn-primary btn-lg" type="button">Start</button>
+
+  <div id="consoleDiv"></div>
+
+</div>
+
+{% include jquery.html %}
+
+<script type="module">
+  import { Wallet } from "./assets/ethers-5.4.esm.min.js";
+  
+  async function findCoolWallet() {
+
+    let count = 0
+    let found = false
+    let wallet
+
+    while (!found) {
+      
+      count++
+
+      wallet = Wallet.createRandom()
+
+      if (String(wallet.address).endsWith($("#str1").val()) ||
+          String(wallet.address).endsWith($("#str2").val()) ||
+          String(wallet.address).startsWith($("#str1").val()) ||
+          String(wallet.address).startsWith($("#str2").val())
+          ) {
+        found = true
+      }
+
+      $("#consoleDiv").html("<p>" + count + " " + wallet.address + " " + wallet.privateKey + "</p>")
+      await new Promise(resolve => setTimeout(resolve, 100)) // Wait .1 seconds each time
+
+    }
+
+    $("#consoleDiv").html("<p>Tried", count, "wallet(s) - Last one:<br/>" +
+        wallet.address + " " + wallet.privateKey + "<br/>" +
+        wallet.mnemonic + "</p>")
+
+  }
+
+  $(document).ready(function() {
+    $("#startButton").click(function() {  
+      findCoolWallet()
+    });
+  });
+
+</script>

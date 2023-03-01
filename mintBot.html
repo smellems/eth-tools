@@ -5,40 +5,68 @@ layout: default
 <div class="container">
   <h1>Mint Bot</h1>
 
-  <div class="form-group row">
-    <label for="maxBaseGasGwei" class="col-sm-2 col-form-label">Max Base Gas (Gwei)</label>
-    <div class="col-sm-10">
-      <input type="text" class="form-control" id="maxBaseGasGwei" value="75" required>
-    </div>
-  </div>
-  <div class="form-group row">
-    <label for="extraGasGwei" class="col-sm-2 col-form-label">Extra Gas (Gwei)</label>
-    <div class="col-sm-10">
-      <input type="text" class="form-control" id="extraGasGwei" value="5" required>
-    </div>
-  </div>
-  <div class="form-group row">
-    <label for="priorityFeeGwei" class="col-sm-2 col-form-label">Priority fee (Gwei)</label>
-    <div class="col-sm-10">
-      <input type="text" class="form-control" id="priorityFeeGwei" value="2" required>
-    </div>
-  </div>
-  <div class="form-group row">
-    <label for="minBalanceETH" class="col-sm-2 col-form-label">Minimum Balance (ETH)</label>
-    <div class="col-sm-10">
-      <input type="text" class="form-control" id="minBalanceETH" value="0.01" required>
-    </div>
-  </div>
-  <div class="form-group row">
-    <label for="contractAddress" class="col-sm-2 col-form-label">Contract Address</label>
-    <div class="col-sm-10">
-      <input type="text" class="form-control" id="contractAddress" value="" required>
-    </div>
-  </div>
-  <div class="form-group row">
-    <label for="contractABI" class="col-sm-2 col-form-label">Contract ABI</label>
-    <div class="col-sm-10">
-      <input type="text" class="form-control" id="contractABI" value="" required>
+  <div class="p-5 mb-4 bg-light rounded-3" id="startForn">
+    <div class="container-fluid py-5">
+      <div class="form-group row">
+        <label for="watchedVar" class="col-sm-2 col-form-label">Watched Variable</label>
+        <div class="col-sm-10">
+          <input type="text" class="form-control" id="watchedVar" value="publicSaleActive" required>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="targetVal" class="col-sm-2 col-form-label">Target Value</label>
+        <div class="col-sm-10">
+          <input type="text" class="form-control" id="targetVal" value="true" required>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="mintFunction" class="col-sm-2 col-form-label">Mint Function Name</label>
+        <div class="col-sm-10">
+          <input type="text" class="form-control" id="mintFunction" value="mint" required>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="pricePerNft" class="col-sm-2 col-form-label">Price Per NFT (ETH)</label>
+        <div class="col-sm-10">
+          <input type="text" class="form-control" id="pricePerNft" value="0.01" required>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="nbNftsToMint" class="col-sm-2 col-form-label">How Many to Mint</label>
+        <div class="col-sm-10">
+          <input type="text" class="form-control" id="nbNftsToMint" value="1" required>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="maxBaseGasGwei" class="col-sm-2 col-form-label">Max Base Gas (Gwei)</label>
+        <div class="col-sm-10">
+          <input type="text" class="form-control" id="maxBaseGasGwei" value="75" required>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="extraGasGwei" class="col-sm-2 col-form-label">Extra Gas (Gwei)</label>
+        <div class="col-sm-10">
+          <input type="text" class="form-control" id="extraGasGwei" value="5" required>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="priorityFeeGwei" class="col-sm-2 col-form-label">Priority fee (Gwei)</label>
+        <div class="col-sm-10">
+          <input type="text" class="form-control" id="priorityFeeGwei" value="2" required>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="minBalanceETH" class="col-sm-2 col-form-label">Minimum Balance (ETH)</label>
+        <div class="col-sm-10">
+          <input type="text" class="form-control" id="minBalanceETH" value="0.01" required>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="contractAddress" class="col-sm-2 col-form-label">Contract Address</label>
+        <div class="col-sm-10">
+          <input type="text" class="form-control" id="contractAddress" value="" required>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -54,57 +82,70 @@ layout: default
 <script type="module">
   import { ethers } from "./assets/ethers-5.4.esm.min.js";
 
-  // Config
-  const maxBaseGasGwei = "75"
-  const extraGasGwei = "15"
-  const priorityFeeGwei = "11"
-  const minBalanceETH = "0.32"
-  
   // Provider
   const provider = new ethers.providers.Web3Provider(window.ethereum)
 
   async function startBot() {
 
+    // Config
+    const watchedVar = $("#watchedVar").val()
+    const targetVal = ($("#watchedVar").val() == "true") ? true : ($("#watchedVar").val() == "false") ? false : $("#watchedVar").val()
+    const mintFunction = $("#mintFunction").val()
+    const pricePerNft = $("#pricePerNft").val()
+    const nbNftsToMint = $("#nbNftsToMint").val()
+
+    const maxBaseGasGwei = $("#maxBaseGasGwei").val()
+    const extraGasGwei = $("#extraGasGwei").val()
+    const priorityFeeGwei = $("#priorityFeeGwei").val()
+    const minBalanceETH = $("#minBalanceETH").val()
+
     // Signer
     await provider.send("eth_requestAccounts", []);
-    //const signer = provider.getSigner()
+    const signer = provider.getSigner()
 
     // Contract
-    const contractAddress = ""
-    const contractABI = []
+    const contractAddress = $("#contractAddress").val()
+    await $.ajax({
+      dataType: "json",
+      url: "https://api.etherscan.io/api?module=contract&action=getabi&address=" + contractAddress,
+      success: function(result) {
+        const contractABI = result.result;
+      }
+    });
+
     //const mintContract = new ethers.Contract(contractAddress, contractABI, signer);
+    $("#startForn").hide();
+    
+    // START LOOP HERE..
+    //let id = setInterval(botLoop, 10000);  // Start loop every 4 seconds
 
     if (Number(ethers.Utils.formatEther(balance)) > Number(minBalanceETH)) {
       //const gasPrice = get gas price
 
       if (Number(ethers.Utils.formatUnits(gasPrice, "gwei")) < Number(maxBaseGasGwei)) {
-        const nonce = await alchemy.core.getTransactionCount(wallet.address, "latest");
-        const extraGas = Number(ethers.Utils.formatUnits(gasPrice, "gwei")) + Number(extraGasGwei)
-        /*const gasLimit = await mintContract.estimateGas.mint({
-          value: ethers.Utils.parseEther("0"),
-          maxPriorityFeePerGas: ethers.Utils.parseUnits(priorityFeeGwei, "gwei"),
-          maxFeePerGas: ethers.Utils.parseUnits(extraGas.toFixed(9), "gwei"),
-          nonce: nonce,
-          type: 2
-        })*/
-
-        console.log("MINT!! - Gas: " + ethers.Utils.formatUnits(gasPrice, "gwei") + " Gwei")
-        clearInterval(id)  // Stop loop - but keep going below..
+        const extraGas = Number(Utils.formatUnits(gasPrice, "gwei")) + Number(extraGwei)
+        const priceTotal = String(Number(pricePerNft) * Number(nbNftsToMint))
 
         let transaction = {
-          value: ethers.Utils.parseEther("0"),
-          //gasLimit: String(gasLimit),
+          value: ethers.Utils.parseEther(priceTotal),
           maxPriorityFeePerGas: ethers.Utils.parseUnits(priorityFeeGwei, "gwei"),
           maxFeePerGas: ethers.Utils.parseUnits(extraGas.toFixed(9), "gwei"),
-          nonce: nonce,
           type: 2
         }
-      
-        // Mint!!
-        //const tx = await mintContract.mint(transaction)
-        //await tx.wait()
 
-        console.log("Done!", tx)
+        // Estimate Gas
+        const gasLimit = await mintContract.estimateGas[mintFunction](nbNftsToMint, transaction)
+
+        if (gasLimit) {
+          console.log("MINT!! - Gas: " + ethers.Utils.formatUnits(gasPrice, "gwei") + " Gwei")
+          clearInterval(id)  // Stop loop - but keep going below..
+
+          // Mint!!
+          //const tx = await mintContract[mintFunction](nbNftsToMint, transaction)
+          //await tx.wait()
+
+          console.log("Done!", tx)
+        }
         
       } else {
         console.log("Gas too high: " + ethers.Utils.formatUnits(gasPrice, "gwei") + " Gwei")
@@ -113,6 +154,12 @@ layout: default
       console.log("Not enough ETH: " + ethers.Utils.formatEther(balance) + " Eth")
       clearInterval(id)  // Stop loop
     }
+    
+  }
+
+  async function botLoop() {
+
+    
 
   }
 

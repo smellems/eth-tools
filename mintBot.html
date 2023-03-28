@@ -5,6 +5,8 @@ layout: default
 <div class="container">
   <h1>Mint Bot</h1>
 
+  <div id="wallet"></div>
+
   <div class="p-5 mb-4 bg-light rounded-3" id="startForn">
     <div class="container-fluid py-5">
       <div class="form-group row">
@@ -67,13 +69,13 @@ layout: default
           <input type="text" class="form-control" id="contractAddress" value="" required>
         </div>
       </div>
+
+      <hr/>
+      <button id="startButton" class="btn btn-primary btn-lg" type="button">Start</button>
     </div>
   </div>
 
-  <div id="moreConfig"></div>
 
-  <hr/>
-  <button id="startButton" class="btn btn-primary btn-lg" type="button">Start</button>
 
 </div>
 
@@ -82,10 +84,9 @@ layout: default
 <script type="module">
   import { ethers } from "./assets/ethers-5.4.esm.min.js";
 
-  // Provider
-  const provider = new ethers.providers.Web3Provider(window.ethereum)
-
   async function startBot() {
+
+    $("#startForn").hide();
 
     // Config
     const watchedVar = $("#watchedVar").val()
@@ -99,67 +100,74 @@ layout: default
     const priorityFeeGwei = $("#priorityFeeGwei").val()
     const minBalanceETH = $("#minBalanceETH").val()
 
+    // Provider
+    const provider = new ethers.providers.Web3Provider(window.ethereum)
+
     // Signer
-    await provider.send("eth_requestAccounts", []);
+    await provider.send("eth_requestAccounts", [])
     const signer = provider.getSigner()
 
-    // Contract
+    const balance = await signer.getBalance()
+    const address = await signer.getAddress()
+    $("#wallet").html("<p>" + address + " " + balance + "</p>")
+
+    // Contract - 0xf7479F9527c57167caff6386DAA588B7BF05727f
     const contractAddress = $("#contractAddress").val()
-    await $.ajax({
+    $.ajax({
       dataType: "json",
       url: "https://api.etherscan.io/api?module=contract&action=getabi&address=" + contractAddress,
       success: function(result) {
         const contractABI = result.result;
+        const mintContract = new ethers.Contract(contractAddress, contractABI, signer);
+
+        let id = setInterval(botLoop, 10000, mintContract, watchedVar, targetVal, mintFunction, pricePerNft, nbNftsToMint, maxBaseGasGwei, extraGasGwei, priorityFeeGwei, minBalanceETH);  // Start loop every 10 seconds
       }
     });
-
-    //const mintContract = new ethers.Contract(contractAddress, contractABI, signer);
-    $("#startForn").hide();
-    
-    // START LOOP HERE..
-    //let id = setInterval(botLoop, 10000);  // Start loop every 4 seconds
-
-    if (Number(ethers.Utils.formatEther(balance)) > Number(minBalanceETH)) {
-      //const gasPrice = get gas price
-
-      if (Number(ethers.Utils.formatUnits(gasPrice, "gwei")) < Number(maxBaseGasGwei)) {
-        const extraGas = Number(Utils.formatUnits(gasPrice, "gwei")) + Number(extraGwei)
-        const priceTotal = String(Number(pricePerNft) * Number(nbNftsToMint))
-
-        let transaction = {
-          value: ethers.Utils.parseEther(priceTotal),
-          maxPriorityFeePerGas: ethers.Utils.parseUnits(priorityFeeGwei, "gwei"),
-          maxFeePerGas: ethers.Utils.parseUnits(extraGas.toFixed(9), "gwei"),
-          type: 2
-        }
-
-        // Estimate Gas
-        const gasLimit = await mintContract.estimateGas[mintFunction](nbNftsToMint, transaction)
-
-        if (gasLimit) {
-          console.log("MINT!! - Gas: " + ethers.Utils.formatUnits(gasPrice, "gwei") + " Gwei")
-          clearInterval(id)  // Stop loop - but keep going below..
-
-          // Mint!!
-          //const tx = await mintContract[mintFunction](nbNftsToMint, transaction)
-          //await tx.wait()
-
-          console.log("Done!", tx)
-        }
-        
-      } else {
-        console.log("Gas too high: " + ethers.Utils.formatUnits(gasPrice, "gwei") + " Gwei")
-      }
-    } else {
-      console.log("Not enough ETH: " + ethers.Utils.formatEther(balance) + " Eth")
-      clearInterval(id)  // Stop loop
-    }
     
   }
 
-  async function botLoop() {
+  async function botLoop(mintContract, watchedVar, targetVal, mintFunction, pricePerNft, nbNftsToMint, maxBaseGasGwei, extraGasGwei, priorityFeeGwei, minBalanceETH) {
 
-    
+    const currentValue = await mintContract[watchedVar]();
+    if (currentValue == targetVal) {
+      const balance = await signer.getBalance()
+      if (Number(ethers.utils.formatEther(balance)) > Number(minBalanceETH)) {
+        const gasPrice = await ........................
+        if (Number(ethers.utils.formatUnits(gasPrice, "gwei")) < Number(maxBaseGasGwei)) {
+          const extraGas = Number(ethers.utils.formatUnits(gasPrice, "gwei")) + Number(extraGwei)
+          const priceTotal = String(Number(pricePerNft) * Number(nbNftsToMint))
+
+          let transaction = {
+            value: ethers.utils.parseEther(priceTotal),
+            maxPriorityFeePerGas: ethers.utils.parseUnits(priorityFeeGwei, "gwei"),
+            maxFeePerGas: ethers.utils.parseUnits(extraGas.toFixed(9), "gwei"),
+            type: 2
+          }
+
+          // Estimate Gas
+          const gasLimit = await mintContract.estimateGas[mintFunction](nbNftsToMint, transaction)
+
+          if (gasLimit) {
+            console.log("MINT!! - Gas: " + ethers.utils.formatUnits(gasPrice, "gwei") + " Gwei")
+            clearInterval(id)  // Stop loop - but keep going below..
+
+            // Mint!!
+            //const tx = await mintContract[mintFunction](nbNftsToMint, transaction)
+            //await tx.wait()
+
+            console.log("Done!", tx)
+          }
+          
+        } else {
+          console.log("Gas too high: " + ethers.utils.formatUnits(gasPrice, "gwei") + " Gwei")
+        }
+      } else {
+        console.log("Not enough ETH: " + ethers.utils.formatEther(balance) + " Eth")
+        clearInterval(id)  // Stop loop
+      }
+    } else {
+      console.log("currentValue: " + currentValue)
+    }
 
   }
 
